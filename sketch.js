@@ -2,19 +2,20 @@ var GRAVITY = 0;
 var FLAP = 0;
 var GROUND_Y = 450;
 var MIN_OPENING = 300;
-var bird, ground;
+var MOVE_Y;
+var bird;
 var pipes;
 var gameOver;
 
 function setup() {
   createCanvas(400, 600);
 
+  MOVE_Y = height/6;
+
   bird = createSprite(width/2, height/2, 40, 40);
   bird.rotateToDirection = true;
   bird.velocity.x = 4;
   bird.setCollider('circle', 0, 0, 20);
-
-  ground = createSprite(800/2, GROUND_Y+100); //image 800x200
 
   pipes = new Group();
   gameOver = true;
@@ -29,10 +30,6 @@ function draw() {
     newGame();
 
   if(!gameOver) {
-
-    if(keyWentDown('x'))
-      bird.velocity.y = FLAP;
-
     bird.velocity.y += GRAVITY;
 
     if(bird.position.y<0)
@@ -67,16 +64,11 @@ function draw() {
 
   camera.position.x = bird.position.x + width/4;
 
-  //wrap ground
-  if(camera.position.x > ground.position.x-ground.width+width/2)
-    ground.position.x+=ground.width;
-
   background(247, 134, 131);
   camera.off();
   camera.on();
 
   drawSprites(pipes);
-  drawSprite(ground);
   drawSprite(bird);
 }
 
@@ -92,12 +84,18 @@ function newGame() {
   bird.position.x = width/2;
   bird.position.y = height/2;
   bird.velocity.y = 0;
-  ground.position.x = 800/2;
-  ground.position.y = GROUND_Y+100;
 }
 
 function mousePressed() {
   if(gameOver)
     newGame();
   bird.velocity.y = FLAP;
+}
+
+function keyPressed() {
+  if (keyCode === UP_ARROW || keyCode === 87) { // W key
+    bird.position.y -= MOVE_Y;
+  } else if (keyCode === DOWN_ARROW || keyCode === 83) { // S key
+    bird.position.y += MOVE_Y;
+  }
 }

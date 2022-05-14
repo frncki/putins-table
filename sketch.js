@@ -1,6 +1,6 @@
 var GRAVITY = 0;
 var FLAP = 0;
-var GROUND_Y = 450;
+var GROUND_Y = 500;
 var MIN_OPENING = 300;
 var MOVE_Y;
 var bird;
@@ -12,10 +12,7 @@ function setup() {
 
   MOVE_Y = height/6;
 
-  bird = createSprite(width/2, height/2, 40, 40);
-  bird.rotateToDirection = true;
-  bird.velocity.x = 4;
-  bird.setCollider('circle', 0, 0, 20);
+  birdInit();
 
   pipes = new Group();
   gameOver = true;
@@ -26,29 +23,32 @@ function setup() {
 
 function draw() {
 
-  if(gameOver && keyWentDown('x'))
+  if (gameOver && keyWentDown('x'))
     newGame();
+  
+  if (bird.position.y < 0) {
+    bird.position.y = height / 2;
+  } else if (bird.position.y > height) {
+    bird.position.y = height - bird.height;
+  }
 
-  if(!gameOver) {
+  if (!gameOver) {
     bird.velocity.y += GRAVITY;
 
-    if(bird.position.y<0)
-      bird.position.y = 0;
-
-    if(bird.position.y+bird.height/2 > GROUND_Y)
+    if (bird.position.y+bird.height/2 > GROUND_Y)
       die();
 
-    if(bird.overlap(pipes))
+    if (bird.overlap(pipes))
       die();
 
     //spawn pipes
-    if(frameCount%60 == 0) {
+    if (frameCount%60 == 0) {
       var pipeH = random(50, 300);
       var pipe = createSprite(bird.position.x + width, GROUND_Y-pipeH/2+1+100, 80, pipeH);
       pipes.add(pipe);
 
       //top pipe
-      if(pipeH<200) {
+      if (pipeH<200) {
         pipeH = height - (height-GROUND_Y)-(pipeH+MIN_OPENING);
         pipe = createSprite(bird.position.x + width, pipeH/2-100, 80, pipeH);
         pipe.mirrorY(-1);
@@ -57,14 +57,14 @@ function draw() {
     }
 
     //get rid of passed pipes
-    for(var i = 0; i<pipes.length; i++)
-      if(pipes[i].position.x < bird.position.x-width/2)
+    for (var i = 0; i<pipes.length; i++)
+      if (pipes[i].position.x < bird.position.x-width/2)
         pipes[i].remove();
   }
 
   camera.position.x = bird.position.x + width/4;
 
-  background(247, 134, 131);
+  background(244, 226, 198);
   camera.off();
   camera.on();
 
@@ -72,9 +72,19 @@ function draw() {
   drawSprite(bird);
 }
 
+function birdInit () {
+  bird = createSprite(width / 2, height / 2, 40, 40);
+  bird.rotateToDirection = true;
+  bird.velocity.x = 5;
+  bird.setCollider('circle', 0, 0, 20);
+}
+
 function die() {
   updateSprites(false);
   gameOver = true;
+  let gameOverText = document.createElement("div");
+  gameOverText.innerHTML = "game over";
+  document.body.appendChild(gameOverText);
 }
 
 function newGame() {
